@@ -23,7 +23,7 @@ def make_msa(
     template_database = model_runner.config.database_params.hhdb
     msa_path = model_runner.config.msa_path
 
-    if msa_path != "":
+    if msa_path != "" and Path(msa_path).exists():
         out_a3m = Path(msa_path)
     else:
         out_a3m = out_dir / "t000_.msa0.a3m"

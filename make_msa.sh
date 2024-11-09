@@ -14,33 +14,10 @@ DB_TEMPL="$5"
 # MSA path to check
 MSA_PATH="$6"
 
-# current script directory (i.e., pipe directory)
 SCRIPT=`realpath -s $0`
 export PIPE_DIR=`dirname $SCRIPT`
-
-# sequence databases
-DB_UR30="$PIPE_DIR/UniRef30_2020_06/UniRef30_2020_06"
-DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
-
-# Running signalP 6.0
-mkdir -p $out_dir/signalp
-tmp_dir="$out_dir/signalp"
-signalp6 --fastafile $in_fasta --organism other --output_dir $tmp_dir --format none --mode slow
-trim_fasta="$tmp_dir/processed_entries.fasta"
-if [ ! -s $trim_fasta ] # empty file -- no signal P
-then
-    trim_fasta="$in_fasta"
-fi
-
-# setup hhblits command
 export HHLIB=/software/hhsuite/build/bin/
 export PATH=$HHLIB:$PATH
-HHBLITS_UR30="hhblits -o /dev/null -mact 0.35 -maxfilt 100000000 -neffmax 20 -cov 25 -cpu $CPU -nodiff -realign_max 100000000 -maxseq 1000000 -maxmem $MEM -n 4 -d $DB_UR30"
-HHBLITS_BFD="hhblits -o /dev/null -mact 0.35 -maxfilt 100000000 -neffmax 20 -cov 25 -cpu $CPU -nodiff -realign_max 100000000 -maxseq 1000000 -maxmem $MEM -n 4 -d $DB_BFD"
-
-mkdir -p $out_dir/hhblits
-tmp_dir="$out_dir/hhblits"
-out_prefix="$out_dir/t000_"
 
 # Check if an MSA file is provided. If so, skip the MSA generation step and use the provided file.
 if [ -n "$MSA_PATH" ] && [ -s "$MSA_PATH" ]
@@ -48,6 +25,24 @@ then
     echo "Using the provided MSA file: $MSA_PATH"
     MSA_TO_USE=$MSA_PATH
 else
+    # Running signalP 6.0
+    mkdir -p $out_dir/signalp
+    tmp_dir="$out_dir/signalp"
+    signalp6 --fastafile $in_fasta --organism other --output_dir $tmp_dir --format none --mode slow
+    trim_fasta="$tmp_dir/processed_entries.fasta"
+    if [ ! -s $trim_fasta ] # empty file -- no signal P
+    then
+        trim_fasta="$in_fasta"
+    fi
+
+    DB_UR30="$PIPE_DIR/UniRef30_2020_06/UniRef30_2020_06"
+    DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+    HHBLITS_UR30="hhblits -o /dev/null -mact 0.35 -maxfilt 100000000 -neffmax 20 -cov 25 -cpu $CPU -nodiff -realign_max 100000000 -maxseq 1000000 -maxmem $MEM -n 4 -d $DB_UR30"
+    HHBLITS_BFD="hhblits -o /dev/null -mact 0.35 -maxfilt 100000000 -neffmax 20 -cov 25 -cpu $CPU -nodiff -realign_max 100000000 -maxseq 1000000 -maxmem $MEM -n 4 -d $DB_BFD"
+    mkdir -p $out_dir/hhblits
+    tmp_dir="$out_dir/hhblits"
+    out_prefix="$out_dir/t000_"
+
     # perform iterative searches against UniRef30
     if [ ! -s ${out_prefix}.msa0.a3m ]
     then

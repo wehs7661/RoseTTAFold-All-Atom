@@ -21,7 +21,7 @@ def make_msa(
     num_cpus = model_runner.config.database_params.num_cpus
     ram_gb = model_runner.config.database_params.mem
     template_database = model_runner.config.database_params.hhdb
-    msa_path = model_runner.config.msa_path
+    msa_path = model_runner.config.protein_inputs[chain].a3m_file
 
     if msa_path != "" and Path(msa_path).exists():
         out_a3m = Path(msa_path)

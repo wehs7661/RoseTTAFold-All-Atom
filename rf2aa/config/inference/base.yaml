@@ -1,6 +1,5 @@
 job_name: "structure_prediction"
 output_path: ""
-msa_path: ""  # the path to an existing MSA file (e.g. t000_.msa0.a3m)
 checkpoint_path: "/home/bioc1870/Software/GitHub_packages/RoseTTAFold-All-Atom/RFAA_paper_weights.pt"
 database_params:
   sequencedb: ""

@@ -19,10 +19,18 @@ export PIPE_DIR=`dirname $SCRIPT`
 export HHLIB=/software/hhsuite/build/bin/
 export PATH=$HHLIB:$PATH
 
+echo ""
+
 # Check if an MSA file is provided. If so, skip the MSA generation step and use the provided file.
 if [ -n "$MSA_PATH" ] && [ -s "$MSA_PATH" ]
 then
-    echo "Using the provided MSA file: $MSA_PATH"
+    if [ -L "$MSA_PATH" ]; then
+        real_path=$(readlink "$MSA_PATH")
+        echo "Using the provided MSA file: $MSA_PATH, which points to $real_path"
+    else
+        echo "Using the provided MSA file: $MSA_PATH"
+    fi
+
     MSA_TO_USE=$MSA_PATH
 else
     # Running signalP 6.0

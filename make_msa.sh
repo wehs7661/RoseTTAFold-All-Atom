@@ -20,23 +20,24 @@ export HHLIB=/software/hhsuite/build/bin/
 export PATH=$HHLIB:$PATH
 
 echo ""
+TASK_NAME=$(dirname "$out_dir" | xargs basename)
 
 # Check if an MSA file is provided. If so, skip the MSA generation step and use the provided file.
 if [ -n "$MSA_PATH" ] && [ -s "$MSA_PATH" ]
 then
     if [ -L "$MSA_PATH" ]; then
         real_path=$(readlink "$MSA_PATH")
-        echo "Using the provided MSA file: $MSA_PATH, which points to $real_path"
+        echo "[ $TASK_NAME ]: Using the provided MSA file: $MSA_PATH, which points to $real_path"
     else
-        echo "Using the provided MSA file: $MSA_PATH"
+        echo "[ $TASK_NAME ]: Using the provided MSA file: $MSA_PATH"
     fi
 
     MSA_TO_USE=$MSA_PATH
 else
-    # Running signalP 6.0
+    echo "[ $TASK_NAME ]: Running signalP 6.0 ..."
     mkdir -p $out_dir/signalp
     tmp_dir="$out_dir/signalp"
-    signalp6 --fastafile $in_fasta --organism other --output_dir $tmp_dir --format none --mode slow
+    signalp6 --fastafile $in_fasta --organism other --output_dir $tmp_dir --format none --mode slow > $tmp_dir/signalp6.stdout 2> $tmp_dir/signalp6.stderr
     trim_fasta="$tmp_dir/processed_entries.fasta"
     if [ ! -s $trim_fasta ] # empty file -- no signal P
     then
@@ -57,7 +58,7 @@ else
         prev_a3m="$trim_fasta"
         for e in 1e-10 1e-6 1e-3
         do
-            echo "Running HHblits against UniRef30 with E-value cutoff $e"
+            echo "[ $TASK_NAME ]: Running HHblits against UniRef30 with E-value cutoff $e"
             if [ ! -s $tmp_dir/t000_.$e.a3m ]
             then
                 $HHBLITS_UR30 -i $prev_a3m -oa3m $tmp_dir/t000_.$e.a3m -e $e -v 0
@@ -91,7 +92,7 @@ else
         if [ ! -s ${out_prefix}.msa0.a3m ] 
         then
             e=1e-3
-            echo "Running HHblits against BFD with E-value cutoff $e"
+            echo "[ $TASK_NAME ]: Running HHblits against BFD with E-value cutoff $e"
             if [ ! -s $tmp_dir/t000_.$e.bfd.a3m ]
             then
                 $HHBLITS_BFD -i $prev_a3m -oa3m $tmp_dir/t000_.$e.bfd.a3m -e $e -v 0
@@ -127,15 +128,15 @@ else
 
 fi
 
-echo "Running PSIPRED"
-echo "  MSA file used: $MSA_TO_USE"
+echo "[ $TASK_NAME ]: Running PSIPRED"
+echo "[ $TASK_NAME ]:   MSA file used: $MSA_TO_USE"
 mkdir -p $out_dir/log
 $PIPE_DIR/input_prep/make_ss.sh $MSA_TO_USE $out_dir/t000_.ss2 > $out_dir/log/make_ss.stdout 2> $out_dir/log/make_ss.stderr
 
 if [ ! -s $out_dir/t000_.hhr ]
 then
-    echo "Running hhsearch"
-    echo "  MSA file used: $MSA_TO_USE"
+    echo "[ $TASK_NAME ]: Running hhsearch"
+    echo "[ $TASK_NAME ]:   MSA file used: $MSA_TO_USE"
     HH="hhsearch -b 50 -B 500 -z 50 -Z 500 -mact 0.05 -cpu $CPU -maxmem $MEM -aliw 100000 -e 100 -p 5.0 -d $DB_TEMPL"
     
     cat $out_dir/t000_.ss2 $MSA_TO_USE > $out_dir/t000_.msa0.ss2.a3m

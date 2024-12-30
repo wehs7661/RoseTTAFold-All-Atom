@@ -338,7 +338,7 @@ def writepdb(filename, *args, file_mode='w', **kwargs, ):
 
 def writepdb_file(f, atoms, seq, modelnum=None, chain="A", idx_pdb=None, bfacts=None, 
              bond_feats=None, file_mode="w",atom_mask=None, atom_idx_offset=0, chain_Ls=None,
-             remap_atomtype=True, lig_name='LG1', atom_names=None):
+             remap_atomtype=True, lig_name='LG1', atom_names=None, chain_names=None):
 
     def _get_atom_type(atom_name):
         atype = ''
@@ -375,7 +375,10 @@ def writepdb_file(f, atoms, seq, modelnum=None, chain="A", idx_pdb=None, bfacts=
 
     alphabet = list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
     if chain_Ls is not None:
-        chain_letters = np.concatenate([np.full(L, alphabet[i]) for i,L in enumerate(chain_Ls)])
+        if chain_names is not None:
+            chain_letters = np.concatenate([np.full(L, chain_names[i]) for i, L in enumerate(chain_Ls)])
+        else:
+            chain_letters = np.concatenate([np.full(L, alphabet[i]) for i, L in enumerate(chain_Ls)])
     else:
         chain_letters = [chain]*len(scpu)
 

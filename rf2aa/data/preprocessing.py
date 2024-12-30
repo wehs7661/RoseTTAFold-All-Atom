@@ -21,14 +21,18 @@ def make_msa(
     num_cpus = model_runner.config.database_params.num_cpus
     ram_gb = model_runner.config.database_params.mem
     template_database = model_runner.config.database_params.hhdb
+    msa_path = model_runner.config.protein_inputs[chain].a3m_file
 
-    out_a3m = out_dir / "t000_.msa0.a3m"
+    if msa_path != "" and Path(msa_path).exists():
+        out_a3m = Path(msa_path)
+    else:
+        out_a3m = out_dir / "t000_.msa0.a3m"
     out_atab = out_dir / "t000_.atab"
     out_hhr = out_dir / "t000_.hhr"
     if out_a3m.exists() and out_atab.exists() and out_hhr.exists():
         return out_a3m, out_hhr, out_atab
 
-    search_command = f"./{command} {fasta_file} {out_dir} {num_cpus} {ram_gb} {search_base} {template_database}"
+    search_command = f"{command} {fasta_file} {out_dir} {num_cpus} {ram_gb} {search_base} {template_database} {msa_path}"
     print(search_command)
     _ = subprocess.run(search_command, shell=True)
     return out_a3m, out_hhr, out_atab

@@ -18,3 +18,9 @@ outputs/
 pdb100_2021Mar03/
 RFAA_paper_weights.pt
 SE3nv-20240131.sif
+
+# Added by myself
+UniRef30_2020_06/
+bfd/
+blast-2.2.26/
+signalp-6.0h.fast.tar.gz

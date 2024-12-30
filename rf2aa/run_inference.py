@@ -138,12 +138,14 @@ class ModelRunner:
         plddts = err_dict["plddts"]
         Ls = Ls_from_same_chain_2d(input_feats.same_chain)
         plddts = plddts[0]
+        chains = [chain for chain in self.config.protein_inputs] + [chain for chain in self.config.sm_inputs]
         writepdb(os.path.join(f"{self.config.output_path}", f"{self.config.job_name}.pdb"), 
                  xyz_allatom, 
                  seq_unmasked, 
                  bond_feats=bond_feats,
                  bfacts=plddts,
-                 chain_Ls=Ls
+                 chain_Ls=Ls,
+                 chain_names=chains
                  )
         torch.save(err_dict, os.path.join(f"{self.config.output_path}", 
                                           f"{self.config.job_name}_aux.pt"))
